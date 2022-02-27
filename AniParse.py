@@ -6,35 +6,29 @@ from urllib.parse import unquote
 def parse(url):
     print('Parsing html: '+url)
     data = {}
-    urlhigh = str()
-    qualityhigh = str()
-    urllow = str()
-    qualitylow = str()
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'lxml')
-
     tags = soup.find_all(text=re.compile('Playerjs'))
     for tag in tags[0].split(',')[2:-2]:
         try:
-            if ''.join(tag.split('download:')[0].split('}')[0].split('file:')[0].split("{'title':")[0].split('\n')).split(" 'file':'")[1] != ' ':
-                try:
-                    urlhigh = ''.join(tag.split('download:')[0].split('}')[0].split('file:')[0].split("{'title':")[0].split('\n')).split(" 'file':'")[1].split('//')[1].split("'")[0]
-                    qualityhigh = ''.join(tag.split('download:')[0].split('}')[0].split('file:')[0].split("{'title':")[0].split('\n')).split(" 'file':'")[1].split('//')[0]
-                    if qualityhigh == '[1080p]':
-                        num = int(urlhigh.split('/')[4].split('-')[0])
-                    else:
-                        num = int(urlhigh.split('/')[4])
-                except:
-                    pass
+            if ''.join(tag.split('"download":')[0].split('{"id"')[0].split('"title"')[0].split('"file":"')).split('"poster"')[0].replace('"', '').replace(r'\/\/', '//').replace(r'\/', '/') != '':
+                url = ''.join(tag.split('"download":')[0].split('{"id"')[0].split('"title"')[0].split('"file":"')).split('"poster"')[0].replace('"', '').replace(r'\/\/', '//').replace(r'\/', '/').split('https://')[1]
+                quality = ''.join(tag.split('"download":')[0].split('{"id"')[0].split('"title"')[0].split('"file":"')).split('"poster"')[0].replace('"', '').replace(r'\/\/', '//').replace(r'\/', '/').split('https://')[0][1:-1]
+                sernum = url.split('/')[5]
+                data.setdefault(sernum, [])
+                data[sernum].append({quality:'https://' + url})    
         except:
-            if ''.join(tag.split('download:')[0].split('}')[0].split('file:')[0].split("{'title':")[0].split('\n')).split(" 'file':'")[0] != ' ':
-                try:
-                    urllow = ''.join(tag.split('download:')[0].split('}')[0].split('file:')[0].split("{'title':")[0].split('\n')).split(" 'file':'")[0].split('//')[1].split("'")[0]
-                    num = int(urllow.split('/')[4].split('-')[0])
-                    qualitylow = ''.join(tag.split('download:')[0].split('}')[0].split('file:')[0].split("{'title':")[0].split('\n')).split(" 'file':'")[0].split('//')[0]
-                    
-                except:
-                    pass
-        if urlhigh and urllow:
-            data[num] = {qualityhigh[1:-1]:'http://' + urlhigh, qualitylow[1:-1]:'http://' + urllow}
+            pass
+    
     return data
+
+
+def format(data, sernum):
+    num = 0
+    quality = []
+    url = []
+    for i in data[sernum]:
+        quality += i.keys()
+        url.append(i[quality[num]])
+        num += 1
+    return (quality, url)
