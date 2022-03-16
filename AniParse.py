@@ -14,14 +14,14 @@ def parse(url):
                 quality = ''.join(tag.split('"download":')[0].split('{"id"')[0].split('"title"')[0].split('"file":"')).split('"poster"')[0].replace('"', '').replace(r'\/\/', '//').replace(r'\/', '/').split('https://')[0][1:-1]
                 sernum = url.split('/')[5]
                 data.setdefault(sernum, [])
-                data[sernum].append({quality:'https://' + url})    
+                data[sernum].append({quality:'https://' + url})
         except:
             pass
     
     return data
 
 
-def format(data, sernum):
+def format_data(data, sernum):
     num = 0
     quality = []
     url = []
