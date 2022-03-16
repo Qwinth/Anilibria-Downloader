@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import json
 from urllib.parse import unquote
 def parse(url):
     print('Parsing html: '+url)
